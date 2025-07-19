@@ -354,18 +354,6 @@ class LoadingState extends MusicBeatState
 		return (loaded >= loadMax && initialThreadCompleted);
 	}
 
-	public static function loadNextDirectory()
-	{
-		var directory:String = 'shared';
-		var weekDir:String = StageData.forceNextDirectory;
-		StageData.forceNextDirectory = null;
-
-		if (weekDir != null && weekDir.length > 0 && weekDir != '') directory = weekDir;
-
-		Paths.setCurrentLevel(directory);
-		trace('Setting asset folder to ' + directory);
-	}
-
 	static var isIntrusive:Bool = false;
 	static function getNextState(target:FlxState, stopMusic = false, intrusive:Bool = true):FlxState
 	{
@@ -375,7 +363,6 @@ class LoadingState extends MusicBeatState
 
 		LoadingState.isIntrusive = intrusive;
 		_startPool();
-		loadNextDirectory();
 
 		if(intrusive)
 			return new LoadingState(target, stopMusic);
@@ -622,7 +609,7 @@ class LoadingState extends MusicBeatState
 			var nam:String = folder.trim();
 			if(nam.endsWith('/'))
 			{
-				for (subfolder in Mods.directoriesWithFile(Paths.getSharedPath(), '$prefix/$nam'))
+				for (subfolder in Mods.directoriesWithFile(Paths.getPath(), '$prefix/$nam'))
 				{
 					for (file in FileSystem.readDirectory(subfolder))
 					{

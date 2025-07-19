@@ -43,11 +43,7 @@ class WeekData {
 	public static function createWeekFile():WeekFile {
 		var weekFile:WeekFile = {
 			songs: [["Bopeebo", "face", [146, 113, 253]], ["Fresh", "face", [146, 113, 253]], ["Dad Battle", "face", [146, 113, 253]]],
-			#if BASE_GAME_FILES
-			weekCharacters: ['dad', 'bf', 'gf'],
-			#else
 			weekCharacters: ['bf', 'bf', 'gf'],
-			#end
 			weekBackground: 'stage',
 			weekBefore: 'tutorial',
 			storyName: 'Your New Week',
@@ -76,17 +72,17 @@ class WeekData {
 		weeksList = [];
 		weeksLoaded.clear();
 		#if MODS_ALLOWED
-		var directories:Array<String> = [Paths.mods(), Paths.getSharedPath()];
+		var directories:Array<String> = [Paths.mods(), Paths.getPath()];
 		var originalLength:Int = directories.length;
 
 		for (mod in Mods.parseList().enabled)
 			directories.push(Paths.mods(mod + '/'));
 		#else
-		var directories:Array<String> = [Paths.getSharedPath()];
+		var directories:Array<String> = [Paths.getPath()];
 		var originalLength:Int = directories.length;
 		#end
 
-		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.getSharedPath('weeks/weekList.txt'));
+		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.getPath('weeks/weekList.txt'));
 		for (i in 0...sexList.length) {
 			for (j in 0...directories.length) {
 				var fileToCheck:String = directories[j] + 'weeks/' + sexList[i] + '.json';

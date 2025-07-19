@@ -61,20 +61,6 @@ class StageData {
 		};
 	}
 
-	public static var forceNextDirectory:String = null;
-	public static function loadDirectory(SONG:SwagSong) {
-		var stage:String = '';
-		if(SONG.stage != null)
-			stage = SONG.stage;
-		else if(Song.loadedSongName != null)
-			stage = vanillaSongStage(Paths.formatToSongPath(Song.loadedSongName));
-		else
-			stage = 'stage';
-
-		var stageFile:StageFile = getStageFile(stage);
-		forceNextDirectory = (stageFile != null) ? stageFile.directory : ''; //preventing crashes
-	}
-
 	public static function getStageFile(stage:String):StageFile {
 		try
 		{

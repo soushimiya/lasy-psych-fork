@@ -1818,7 +1818,7 @@ class FunkinLua {
 			}
 		}
 
-		var foldersToCheck:Array<String> = [Paths.getSharedPath('shaders/')];
+		var foldersToCheck:Array<String> = [Paths.getPath('shaders/')];
 		#if MODS_ALLOWED
 		foldersToCheck.push(Paths.mods('shaders/'));
 		if(Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)

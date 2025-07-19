@@ -642,7 +642,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		opponentDropDown.selectedLabel = PlayState.SONG.player2;
 		girlfriendDropDown.selectedLabel = PlayState.SONG.gfVersion;
 		stageDropDown.selectedLabel = PlayState.SONG.stage;
-		StageData.loadDirectory(PlayState.SONG);
 
 		// DATA TAB
 		gameOverCharDropDown.selectedLabel = PlayState.SONG.gameOverChar;
@@ -1785,7 +1784,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	function loadChart(song:SwagSong)
 	{
 		PlayState.SONG = song;
-		StageData.loadDirectory(PlayState.SONG);
 		Conductor.bpm = PlayState.SONG.bpm;
 	}
 
@@ -3273,7 +3271,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		stageDropDown = new PsychUIDropDownMenu(objX + 140, objY, [''], function(id:Int, stage:String)
 		{
 			PlayState.SONG.stage = stage;
-			StageData.loadDirectory(PlayState.SONG);
 			trace('selected $stage');
 		});
 		
@@ -4810,7 +4807,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		setSongPlaying(false);
 		updateChartData();
-		StageData.loadDirectory(PlayState.SONG);
 		LoadingState.loadAndSwitchState(new PlayState());
 		ClientPrefs.toggleVolumeKeys(true);
 	}
@@ -4859,7 +4855,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			}
 		}
 
-		for (directory in Mods.directoriesWithFile(Paths.getSharedPath(), mainFolder))
+		for (directory in Mods.directoriesWithFile(Paths.getPath(), mainFolder))
 		{
 			for (file in FileSystem.readDirectory(directory))
 			{

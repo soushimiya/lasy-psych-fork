@@ -119,9 +119,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		var directory:String = 'shared';
 		var weekDir:String = stageJson.directory;
 		if (weekDir != null && weekDir.length > 0 && weekDir != '') directory = weekDir;
-
-		Paths.setCurrentLevel(directory);
-		trace('Setting asset folder to ' + directory);
 	}
 
 	var showSelectionQuad:Bool = true;
@@ -993,7 +990,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		var tab_group = UI_box.getTab('Meta').menu;
 
 		var characterList = Mods.mergeAllTextsNamed('data/characterList.txt');
-		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'characters/');
+		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPath(), 'characters/');
 		for (folder in foldersToCheck)
 			for (file in FileSystem.readDirectory(folder))
 				if(file.toLowerCase().endsWith('.json'))
@@ -1284,7 +1281,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	function reloadStageDropDown()
 	{
 		var stageList:Array<String> = [];
-		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'stages/');
+		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPath(), 'stages/');
 		for (folder in foldersToCheck)
 			for (file in FileSystem.readDirectory(folder))
 				if(file.toLowerCase().endsWith('.json'))

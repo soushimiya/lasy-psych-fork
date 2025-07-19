@@ -143,12 +143,10 @@ class Paths
 		FlxG.bitmap.remove(graphic);
 	}
 
-	static public var currentLevel:String;
-	static public function setCurrentLevel(name:String)
-		currentLevel = name.toLowerCase();
-
-	public static function getPath(file:String, ?type:AssetType = TEXT, ?parentfolder:String, ?modsAllowed:Bool = true):String
+	public static function getPath(?file:String, ?type:AssetType = TEXT, ?parentfolder:String, ?modsAllowed:Bool = true):String
 	{
+		if (file == null)
+			return 'assets/';
 		#if MODS_ALLOWED
 		if(modsAllowed)
 		{
@@ -162,21 +160,11 @@ class Paths
 
 		if (parentfolder != null)
 			return getFolderPath(file, parentfolder);
-
-		if (currentLevel != null && currentLevel != 'shared')
-		{
-			var levelPath = getFolderPath(file, currentLevel);
-			if (OpenFlAssets.exists(levelPath, type))
-				return levelPath;
-		}
-		return getSharedPath(file);
+		return 'assets/$file';
 	}
 
 	inline static public function getFolderPath(file:String, folder = "shared")
 		return 'assets/$folder/$file';
-
-	inline public static function getSharedPath(file:String = '')
-		return 'assets/shared/$file';
 
 	inline static public function txt(key:String, ?folder:String)
 		return getPath('data/$key.txt', TEXT, folder, true);

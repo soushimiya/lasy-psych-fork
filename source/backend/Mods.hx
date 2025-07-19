@@ -66,7 +66,7 @@ class Mods
 	
 	inline public static function mergeAllTextsNamed(path:String, ?defaultDirectory:String = null, allowDuplicates:Bool = false)
 	{
-		if(defaultDirectory == null) defaultDirectory = Paths.getSharedPath();
+		if(defaultDirectory == null) defaultDirectory = Paths.getPath();
 		defaultDirectory = defaultDirectory.trim();
 		if(!defaultDirectory.endsWith('/')) defaultDirectory += '/';
 		if(!defaultDirectory.startsWith('assets/')) defaultDirectory = 'assets/$defaultDirectory';
@@ -97,14 +97,6 @@ class Mods
 		//Main folder
 		if(FileSystem.exists(path + fileToFind))
 			foldersToCheck.push(path + fileToFind);
-
-		// Week folder
-		if(Paths.currentLevel != null && Paths.currentLevel != path)
-		{
-			var pth:String = Paths.getFolderPath(fileToFind, Paths.currentLevel);
-			if(!foldersToCheck.contains(pth) && FileSystem.exists(pth))
-				foldersToCheck.push(pth);
-		}
 
 		#if MODS_ALLOWED
 		if(mods)

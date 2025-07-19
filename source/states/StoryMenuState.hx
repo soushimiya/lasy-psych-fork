@@ -344,10 +344,6 @@ class StoryMenuState extends MusicBeatState
 				stopspamming = true;
 			}
 
-			var directory = StageData.forceNextDirectory;
-			LoadingState.loadNextDirectory();
-			StageData.forceNextDirectory = directory;
-
 			@:privateAccess
 			if(PlayState._lastLoadedModDirectory != Mods.currentModDirectory)
 			{

@@ -17,7 +17,7 @@ import objects.Bar;
 import states.editors.content.Prompt;
 import states.editors.content.PsychJsonPrinter;
 
-@:bitmap("assets/embed/images/psych-ui/cursorCross.png")
+@:bitmap("art/embed/images/psych-ui/cursorCross.png")
 class GraphicCursorCross extends openfl.display.BitmapData {}
 
 class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
@@ -1074,15 +1074,11 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	final assetFolder = 'week1';  //load from assets/week1/
 	inline function loadBG()
 	{
-		var lastLoaded = Paths.currentLevel;
-		Paths.currentLevel = assetFolder;
-
 		/////////////
 		// bg data //
 		/////////////
-		#if !BASE_GAME_FILES
 		camEditor.bgColor = 0xFF666666;
-		#else
+
 		var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
 		add(bg);
 
@@ -1090,13 +1086,10 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
 		stageFront.updateHitbox();
 		add(stageFront);
-		#end
 
 		dadPosition.set(100, 100);
 		bfPosition.set(770, 100);
 		/////////////
-
-		Paths.currentLevel = lastLoaded;
 	}
 
 	inline function updatePointerPos(?snap:Bool = true)
@@ -1223,7 +1216,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	var characterList:Array<String> = [];
 	function reloadCharacterDropDown() {
 		characterList = Mods.mergeAllTextsNamed('data/characterList.txt');
-		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'characters/');
+		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPath(), 'characters/');
 		for (folder in foldersToCheck)
 			for (file in FileSystem.readDirectory(folder))
 				if(file.toLowerCase().endsWith('.json'))

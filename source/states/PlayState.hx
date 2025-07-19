@@ -421,7 +421,7 @@ class PlayState extends MusicBeatState
 		
 		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
 		// "SCRIPTS FOLDER" SCRIPTS
-		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'scripts/'))
+		for (folder in Mods.directoriesWithFile(Paths.getPath(), 'scripts/'))
 			for (file in FileSystem.readDirectory(folder))
 			{
 				#if LUA_ALLOWED
@@ -577,7 +577,7 @@ class PlayState extends MusicBeatState
 
 		// SONG SPECIFIC SCRIPTS
 		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
-		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'data/$songName/'))
+		for (folder in Mods.directoriesWithFile(Paths.getPath(), 'data/$songName/'))
 			for (file in FileSystem.readDirectory(folder))
 			{
 				#if LUA_ALLOWED
@@ -751,12 +751,12 @@ class PlayState extends MusicBeatState
 		}
 		else
 		{
-			luaFile = Paths.getSharedPath(luaFile);
+			luaFile = Paths.getPath(luaFile);
 			if(FileSystem.exists(luaFile))
 				doPush = true;
 		}
 		#else
-		luaFile = Paths.getSharedPath(luaFile);
+		luaFile = Paths.getPath(luaFile);
 		if(Assets.exists(luaFile)) doPush = true;
 		#end
 
@@ -788,7 +788,7 @@ class PlayState extends MusicBeatState
 		else
 		#end
 		{
-			scriptFile = Paths.getSharedPath(scriptFile);
+			scriptFile = Paths.getPath(scriptFile);
 			if(FileSystem.exists(scriptFile))
 				doPush = true;
 		}
@@ -2418,7 +2418,7 @@ class PlayState extends MusicBeatState
 
 		#if ACHIEVEMENTS_ALLOWED
 		var weekNoMiss:String = WeekData.getWeekFileName() + '_nomiss';
-		checkForAchievement([weekNoMiss, 'ur_bad', 'ur_good', 'hype', 'two_keys', 'toastie' #if BASE_GAME_FILES, 'debugger' #end]);
+		checkForAchievement([weekNoMiss, 'ur_bad', 'ur_good', 'hype', 'two_keys', 'toastie']);
 		#end
 
 		var ret:Dynamic = callOnScripts('onEndSong', null, true);
@@ -3280,11 +3280,11 @@ class PlayState extends MusicBeatState
 		#if MODS_ALLOWED
 		var luaToLoad:String = Paths.modFolders(luaFile);
 		if(!FileSystem.exists(luaToLoad))
-			luaToLoad = Paths.getSharedPath(luaFile);
+			luaToLoad = Paths.getPath(luaFile);
 
 		if(FileSystem.exists(luaToLoad))
 		#elseif sys
-		var luaToLoad:String = Paths.getSharedPath(luaFile);
+		var luaToLoad:String = Paths.getPath(luaFile);
 		if(OpenFlAssets.exists(luaToLoad))
 		#end
 		{
@@ -3304,9 +3304,9 @@ class PlayState extends MusicBeatState
 		#if MODS_ALLOWED
 		var scriptToLoad:String = Paths.modFolders(scriptFile);
 		if(!FileSystem.exists(scriptToLoad))
-			scriptToLoad = Paths.getSharedPath(scriptFile);
+			scriptToLoad = Paths.getPath(scriptFile);
 		#else
-		var scriptToLoad:String = Paths.getSharedPath(scriptFile);
+		var scriptToLoad:String = Paths.getPath(scriptFile);
 		#end
 
 		if(FileSystem.exists(scriptToLoad))
@@ -3544,11 +3544,6 @@ class PlayState extends MusicBeatState
 
 					case 'toastie':
 						unlock = (!ClientPrefs.data.cacheOnGPU && !ClientPrefs.data.shaders && ClientPrefs.data.lowQuality && !ClientPrefs.data.antialiasing);
-
-					#if BASE_GAME_FILES
-					case 'debugger':
-						unlock = (songName == 'test' && !usedPractice);
-					#end
 				}
 			}
 			else // any FC achievements, name should be "weekFileName_nomiss", e.g: "week3_nomiss";
@@ -3596,7 +3591,7 @@ class PlayState extends MusicBeatState
 			return true;
 		}
 
-		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'shaders/'))
+		for (folder in Mods.directoriesWithFile(Paths.getPath(), 'shaders/'))
 		{
 			var frag:String = folder + name + '.frag';
 			var vert:String = folder + name + '.vert';
