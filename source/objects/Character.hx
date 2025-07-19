@@ -10,7 +10,6 @@ import openfl.utils.Assets;
 import haxe.Json;
 
 import backend.Song;
-import states.stages.objects.TankmenBG;
 
 typedef CharacterFile = {
 	var animations:Array<AnimArray>;
@@ -418,8 +417,6 @@ class Character extends FlxSprite
 				for (section in songData.notes)
 					for (songNotes in section.sectionNotes)
 						animationNotes.push(songNotes);
-
-			TankmenBG.animationNotes = animationNotes;
 			animationNotes.sort(sortAnims);
 		}
 		catch(e:Dynamic) {}

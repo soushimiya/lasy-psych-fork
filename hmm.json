@@ -1,0 +1,47 @@
+{
+	"dependencies": [
+		{
+			"name": "hxcpp",
+			"type": "haxelib"
+		},
+		{
+			"name": "flixel",
+			"type": "haxelib"
+		},
+		{
+			"name": "flixel-addons",
+			"type": "haxelib"
+		},
+		{
+			"name": "hscript-iris",
+			"type": "git",
+			"url": "https://github.com/pisayesiwsi/hscript-iris"
+		},
+		{
+			"name": "tjson",
+			"type": "haxelib"
+		},
+		{
+			"name": "hxdiscord_rpc",
+			"type": "haxelib",
+			"version": "1.2.4"
+		},
+		{
+			"name": "hxvlc",
+			"type": "haxelib",
+			"version": "2.0.1"
+		},
+		{
+			"name": "flxanimate",
+			"type": "git",
+			"url": "https://github.com/Dot-Stuff/flxanimate",
+			"ref": "768740a56b26aa0c072720e0d1236b94afe68e3e"
+		},
+		{
+			"name": "linc_luajit",
+			"type": "git",
+			"url": "https://github.com/superpowers04/linc_luajit",
+			"ref": "1906c4a96f6bb6df66562b3f24c62f4c5bba14a7"
+		}
+	]
+}

@@ -1,3 +1,3 @@
 # Lasy's Psych Fork
-lua/hscript custom state, lua/hscript(yep again lol) transitions, modchart, constant class, and hscript-improved(from fucking cne)
+lua/hscript custom state, lua/hscript(yep again lol) transitions, modchart, constant class
 and uhhh idk i forgor

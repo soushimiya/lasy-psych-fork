@@ -2,7 +2,7 @@ package states.editors;
 
 import flixel.graphics.FlxGraphic;
 
-import flixel.system.debug.interaction.tools.Pointer.GraphicCursorCross;
+import flixel.system.debug.interaction.tools.Pointer;
 import flixel.util.FlxDestroyUtil;
 
 import openfl.net.FileReference;
@@ -16,6 +16,9 @@ import objects.Bar;
 
 import states.editors.content.Prompt;
 import states.editors.content.PsychJsonPrinter;
+
+@:bitmap("assets/embed/images/psych-ui/cursorCross.png")
+class GraphicCursorCross extends openfl.display.BitmapData {}
 
 class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
