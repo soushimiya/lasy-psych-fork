@@ -61,6 +61,9 @@ class Character extends FlxSprite
 	public var danceIdle:Bool = false; //Character use "danceLeft" and "danceRight" instead of "idle"
 	public var skipDance:Bool = false;
 
+	public var lastHitNotePosition:Null<Float>;
+	public var lastHitNoteDirection:Int = -1;
+
 	public var healthIcon:String = 'face';
 	public var animationsArray:Array<AnimArray> = [];
 

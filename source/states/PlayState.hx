@@ -151,9 +151,12 @@ class PlayState extends MusicBeatState
 	public var vocals:FlxSound;
 	public var opponentVocals:FlxSound;
 
-	public var dad:Character = null;
-	public var gf:Character = null;
-	public var boyfriend:Character = null;
+	public var dad:Character;
+	public var gf:Character;
+	public var boyfriend:Character;
+
+	public var dadGhost:FlxSprite;
+	public var bfGhost:FlxSprite;
 
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
@@ -399,11 +402,29 @@ class PlayState extends MusicBeatState
 
 		dad = new Character(0, 0, SONG.player2);
 		startCharacterPos(dad, true);
-		dadGroup.add(dad);
+
+		dadGhost = new FlxSprite(dad.x, dad.y);
+		dadGhost.alpha = 0;
+		dadGhost.frames = Paths.getSparrowAtlas(dad.imageFile);
+		dadGhost.animation.copyFrom(dad.animation);
+		dadGhost.color = FlxColor.fromRGB(dad.healthColorArray[0], dad.healthColorArray[1], dad.healthColorArray[2]);
+		dadGhost.updateHitbox();
+		dadGhost.flipX = dad.flipX;
+		dadGroup.add(dadGhost);
 
 		boyfriend = new Character(0, 0, SONG.player1, true);
 		startCharacterPos(boyfriend);
-		boyfriendGroup.add(boyfriend);
+
+		bfGhost = new FlxSprite(boyfriend.x, boyfriend.y);
+		bfGhost.alpha = 0;
+		bfGhost.frames = Paths.getSparrowAtlas(boyfriend.imageFile);
+		bfGhost.animation.copyFrom(boyfriend.animation);
+		bfGhost.color = FlxColor.fromRGB(boyfriend.healthColorArray[0], boyfriend.healthColorArray[1], boyfriend.healthColorArray[2]);
+		bfGhost.updateHitbox();
+		bfGhost.flipX = boyfriend.flipX;
+		bfGhost.scale.set(boyfriend.scale.x, boyfriend.scale.y);
+
+		boyfriendGroup.add(bfGhost);
 		
 		if(stageData.objects != null && stageData.objects.length > 0)
 		{
@@ -418,6 +439,9 @@ class PlayState extends MusicBeatState
 			add(dadGroup);
 			add(boyfriendGroup);
 		}
+
+		dadGroup.add(dad);
+		boyfriendGroup.add(boyfriend);
 		
 		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
 		// "SCRIPTS FOLDER" SCRIPTS
@@ -1709,6 +1733,9 @@ class PlayState extends MusicBeatState
 		updateIconsScale(elapsed);
 		updateIconsPosition();
 
+		dadGhost.alpha = FlxMath.lerp(0, dadGhost.alpha, 0.01);
+		bfGhost.alpha = FlxMath.lerp(0, bfGhost.alpha, 0.01);
+
 		if (startedCountdown && !paused)
 		{
 			Conductor.songPosition += elapsed * 1000 * playbackRate;
@@ -2994,6 +3021,18 @@ class PlayState extends MusicBeatState
 					if(char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop') canPlay = false;
 				}
 
+				// trail thing
+				if (!note.isSustainNote && char.lastHitNotePosition != null && Std.int(char.lastHitNotePosition) == Std.int(note.strumTime) && char.lastHitNoteDirection != note.noteData)
+				{
+					dadGhost.alpha = 0.6;
+					canPlay = false;
+					dadGhost.animation.play(animToPlay);
+					var animOff = char.animOffsets.get(animToPlay);
+					dadGhost.offset.set(animOff[0], animOff[1]);
+				}
+				char.lastHitNotePosition = note.strumTime;
+				char.lastHitNoteDirection = note.noteData;
+
 				if(canPlay) char.playAnim(animToPlay, true);
 				char.holdTimer = 0;
 			}
@@ -3052,6 +3091,18 @@ class PlayState extends MusicBeatState
 						if(char.animation.exists(holdAnim)) animToPlay = holdAnim;
 						if(char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop') canPlay = false;
 					}
+
+					// trail thing
+					if (!note.isSustainNote && char.lastHitNotePosition != null && Std.int(char.lastHitNotePosition) == Std.int(note.strumTime) && char.lastHitNoteDirection != note.noteData)
+					{
+						bfGhost.alpha = 0.6;
+						canPlay = false;
+						bfGhost.animation.play(animToPlay);
+						var animOff = char.animOffsets.get(animToPlay);
+						bfGhost.offset.set(animOff[0], animOff[1]);
+					}
+					char.lastHitNotePosition = note.strumTime;
+					char.lastHitNoteDirection = note.noteData;
 	
 					if(canPlay) char.playAnim(animToPlay, true);
 					char.holdTimer = 0;
