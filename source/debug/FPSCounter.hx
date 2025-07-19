@@ -1,16 +1,24 @@
-package debug;
+package backend;
 
+import openfl.display.BitmapData;
+import openfl.display.Bitmap;
 import flixel.FlxG;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.system.System;
+import openfl.display.Sprite;
 
 /**
 	The FPS class provides an easy-to-use monitor to display
 	the current frame rate of an OpenFL project
 **/
-class FPSCounter extends TextField
+class FPSCounter extends Sprite
 {
+	public var updating:Bool = true;
+	
+	public var text:TextField;
+	public var underlay:Bitmap;
+
 	/**
 		The current frame rate, expressed using frames-per-second
 	**/
@@ -30,15 +38,24 @@ class FPSCounter extends TextField
 		this.x = x;
 		this.y = y;
 
+		underlay = new Bitmap();
+		underlay.bitmapData = new BitmapData(1, 1, true, 0x6F000000);
+		addChild(underlay);
+
+		text = new TextField();
+		addChild(text);
+
 		currentFPS = 0;
-		selectable = false;
-		mouseEnabled = false;
-		defaultTextFormat = new TextFormat("_sans", 14, color);
-		autoSize = LEFT;
-		multiline = true;
-		text = "FPS: ";
+		text.selectable = false;
+		text.mouseEnabled = false;
+		text.defaultTextFormat = new TextFormat("_sans", 14, color);
+		text.autoSize = LEFT;
+		text.multiline = true;
+		text.text = "FPS: ";
 
 		times = [];
+
+		FlxG.signals.postStateSwitch.add(() -> updateText = __updateTxt);
 	}
 
 	var deltaTimeout:Float = 0.0;
@@ -48,27 +65,47 @@ class FPSCounter extends TextField
 	{
 		final now:Float = haxe.Timer.stamp() * 1000;
 		times.push(now);
-		while (times[0] < now - 1000) times.shift();
+		while (times[0] < now - 1000)
+			times.shift();
+
 		// prevents the overlay from updating every frame, why would you need to anyways @crowplexus
-		if (deltaTimeout < 50) {
+		if (deltaTimeout < 100)
+		{
 			deltaTimeout += deltaTime;
 			return;
 		}
 
-		currentFPS = times.length < FlxG.updateFramerate ? times.length : FlxG.updateFramerate;		
+		currentFPS = times.length < FlxG.updateFramerate ? times.length : FlxG.updateFramerate;
 		updateText();
+		underlay.width = text.width + 5;
+		underlay.height = text.height;
+
 		deltaTimeout = 0.0;
 	}
 
-	public dynamic function updateText():Void { // so people can override it in hscript
-		text = 'FPS: ${currentFPS}'
-		+ '\nMemory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}';
+	dynamic function updateText():Void
+	{
+		__updateTxt();
+	}
 
-		textColor = 0xFFFFFFFF;
-		if (currentFPS < FlxG.drawFramerate * 0.5)
-			textColor = 0xFFFF0000;
+	function __updateTxt()
+	{
+		if (!updating) return;
+
+		text.text = 'FPS: $currentFPS • Memory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}';
+
+		text.textColor = 0xFFFFFFFF;
+		if (currentFPS < FlxG.drawFramerate * 0.5) text.textColor = 0xFFFF0000;
 	}
 
 	inline function get_memoryMegas():Float
+	{
+		#if cpp
 		return cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE);
+		#elseif (openfl >= "9.4.0")
+		return cast(System.totalMemoryNumber, UInt);
+		#else
+		return cast(System.totalMemory, UInt);
+		#end
+	}
 }
