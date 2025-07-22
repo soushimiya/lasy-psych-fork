@@ -43,7 +43,8 @@ import flixel.input.gamepad.FlxGamepadInputID;
 
 import haxe.Json;
 
-class FunkinLua {
+class FunkinLua implements backend.IScriptHandler
+{
 	public var lua:State = null;
 	public var camTarget:FlxCamera;
 	public var scriptName:String = '';
@@ -51,7 +52,7 @@ class FunkinLua {
 	public var closed:Bool = false;
 
 	#if HSCRIPT_ALLOWED
-	public var hscript:HScript = null;
+	public var hscript:FunkinHScript = null;
 	#end
 
 	public var callbacks:Map<String, Dynamic> = new Map<String, Dynamic>();
