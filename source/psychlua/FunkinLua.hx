@@ -45,6 +45,8 @@ import haxe.Json;
 
 class FunkinLua implements backend.IScriptHandler
 {
+	public var scriptType = LUA;
+
 	public var lua:State = null;
 	public var camTarget:FlxCamera;
 	public var scriptName:String = '';
@@ -1606,8 +1608,9 @@ class FunkinLua implements backend.IScriptHandler
 	//main
 	public var lastCalledFunction:String = '';
 	public static var lastCalledScript:FunkinLua = null;
-	public function call(func:String, args:Array<Dynamic>):Dynamic {
+	public function call(func:String, ?args:Array<Dynamic>):Dynamic {
 		if(closed) return LuaUtils.Function_Continue;
+		if (args == null) args = [];
 
 		lastCalledFunction = func;
 		lastCalledScript = this;
