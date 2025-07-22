@@ -160,8 +160,7 @@
 	<haxedef name="message.reporting" value="pretty" />
 
 	<!--Macro fixes-->
-	<haxeflag name="--macro" value="allowPackage('flash')" />
-	<haxeflag name="--macro" value="include('my.pack')" />
+	<compilerflag name="--macro" value="include('flixel', true, [ 'flixel.addons.editors.spine.*', 'flixel.addons.nape.*', 'flixel.system.macros.*' ])" />
 
 	<haxedef name="hscriptPos" if="HSCRIPT_ALLOWED" />
 

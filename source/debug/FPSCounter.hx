@@ -1,4 +1,4 @@
-package backend;
+package debug;
 
 import openfl.display.BitmapData;
 import openfl.display.Bitmap;
