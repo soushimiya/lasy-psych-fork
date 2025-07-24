@@ -23,13 +23,6 @@ import sys.thread.Mutex;
 import objects.Note;
 import objects.NoteSplash;
 
-#if HSCRIPT_ALLOWED
-import psychlua.HScript;
-import crowplexus.iris.Iris;
-import crowplexus.hscript.Expr.Error as IrisError;
-import crowplexus.hscript.Printer;
-#end
-
 #if cpp
 @:headerCode('
 #include <iostream>
@@ -84,9 +77,6 @@ class LoadingState extends MusicBeatState
 	var funkay:FlxSprite;
 	#end
 
-	#if HSCRIPT_ALLOWED
-	var hscript:HScript;
-	#end
 	override function create()
 	{
 		persistentUpdate = true;
@@ -104,43 +94,6 @@ class LoadingState extends MusicBeatState
 		bar.updateHitbox();
 		barGroup.add(bar);
 		barWidth = Std.int(barBack.width - 10);
-
-		#if HSCRIPT_ALLOWED
-		if(Mods.currentModDirectory != null && Mods.currentModDirectory.trim().length > 0)
-		{
-			var scriptPath:String = 'mods/${Mods.currentModDirectory}/data/LoadingScreen.hx'; //mods/My-Mod/data/LoadingScreen.hx
-			if(FileSystem.exists(scriptPath))
-			{
-				try
-				{
-					hscript = new HScript(null, scriptPath);
-					hscript.set('getLoaded', function() return loaded);
-					hscript.set('getLoadMax', function() return loadMax);
-					hscript.set('barBack', barBack);
-					hscript.set('bar', bar);
-	
-					if(hscript.exists('onCreate'))
-					{
-						hscript.call('onCreate');
-						trace('initialized hscript interp successfully: $scriptPath');
-						return super.create();
-					}
-					else
-					{
-						trace('"$scriptPath" contains no \"onCreate" function, stopping script.');
-					}
-				}
-				catch(e:IrisError)
-				{
-					var pos:HScriptInfos = cast {fileName: scriptPath, showLine: false};
-					Iris.error(Printer.errorToString(e, false), pos);
-					var hscript:HScript = cast (Iris.instances.get(scriptPath), HScript);
-				}
-				if(hscript != null) hscript.destroy();
-				hscript = null;
-			}
-		}
-		#end
 
 		#if PSYCH_WATERMARKS // PSYCH LOADING SCREEN
 		var bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -220,14 +173,6 @@ class LoadingState extends MusicBeatState
 			bar.scale.x = barWidth * curPercent;
 			bar.updateHitbox();
 		}
-		
-		#if HSCRIPT_ALLOWED
-		if(hscript != null)
-		{
-			if(hscript.exists('onUpdate')) hscript.call('onUpdate', [elapsed]);
-			return;
-		}
-		#end
 
 		#if PSYCH_WATERMARKS // PSYCH LOADING SCREEN
 		timePassed += elapsed;
@@ -300,19 +245,6 @@ class LoadingState extends MusicBeatState
 		}
 		#end
 	}
-
-	#if HSCRIPT_ALLOWED
-	override function destroy()
-	{
-		if(hscript != null)
-		{
-			if(hscript.exists('onDestroy')) hscript.call('onDestroy');
-			hscript.destroy();
-		}
-		hscript = null;
-		super.destroy();
-	}
-	#end
 	
 	var finishedLoading:Bool = false;
 	function onLoad()

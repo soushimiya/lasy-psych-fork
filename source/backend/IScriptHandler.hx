@@ -1,6 +1,6 @@
 package backend;
 
-interface IScriptHandler
+interface IScriptHandler extends flixel.util.IFlxDestroyable
 {
     public var scriptType:ScriptType;
 

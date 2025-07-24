@@ -1,11 +1,13 @@
 package psychlua;
 
+import backend.IScriptHandler;
+
 import hscript.Interp;
 import hscript.Parser;
 
-class FunkinHScript implements backend.IScriptHandler
+class FunkinHScript implements IScriptHandler
 {
-	public var scriptType = HSCRIPT;
+	public var scriptType:ScriptType = HSCRIPT;
 
 	public var parser:Parser;
 	public var interp:Interp;

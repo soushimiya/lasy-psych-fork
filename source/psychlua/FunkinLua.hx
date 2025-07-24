@@ -1,6 +1,8 @@
 #if LUA_ALLOWED
 package psychlua;
 
+import backend.IScriptHandler;
+
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
@@ -43,9 +45,9 @@ import flixel.input.gamepad.FlxGamepadInputID;
 
 import haxe.Json;
 
-class FunkinLua implements backend.IScriptHandler
+class FunkinLua implements IScriptHandler
 {
-	public var scriptType = LUA;
+	public var scriptType:ScriptType = LUA;
 
 	public var lua:State = null;
 	public var camTarget:FlxCamera;
