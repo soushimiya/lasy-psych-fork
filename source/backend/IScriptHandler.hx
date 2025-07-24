@@ -1,11 +1,14 @@
 package backend;
 
-interface IScriptHandler extends flixel.util.IFlxDestroyable
+import flixel.util.FlxDestroyUtil;
+
+interface IScriptHandler extends IFlxDestroyable
 {
     public var scriptType:ScriptType;
 
     public function get(variable:String):Dynamic;
-    public function set(variable:String, value:Dynamic):Void;
+    // it has fucking allowOverride cuz of Iris fuuuck
+    public function set(variable:String, value:Dynamic, ?allowOverride:Bool):Void;
 
     public function call(func:String, ?args:Array<String>):Dynamic;
 }

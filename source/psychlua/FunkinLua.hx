@@ -56,7 +56,7 @@ class FunkinLua implements IScriptHandler
 	public var closed:Bool = false;
 
 	#if HSCRIPT_ALLOWED
-	public var hscript:FunkinHScript = null;
+	public var hscript:HScript = null;
 	#end
 
 	public var callbacks:Map<String, Dynamic> = new Map<String, Dynamic>();
@@ -344,7 +344,7 @@ class FunkinLua implements IScriptHandler
 					if(luaInstance.scriptName == luaPath)
 					{
 						trace('Closing lua script $luaPath');
-						luaInstance.stop();
+						luaInstance.destroy();
 						foundAny = true;
 					}
 				}
@@ -1645,7 +1645,7 @@ class FunkinLua implements IScriptHandler
 			if (result == null) result = LuaUtils.Function_Continue;
 
 			Lua.pop(lua, 1);
-			if(closed) stop();
+			if(closed) this.destroy();
 			return result;
 		}
 		catch (e:Dynamic) {
@@ -1654,7 +1654,12 @@ class FunkinLua implements IScriptHandler
 		return LuaUtils.Function_Continue;
 	}
 
-	public function set(variable:String, data:Dynamic) {
+	public function get(variable:String):Dynamic {
+		// dummy yet idfk about how lua works sowwyy
+		return null;
+	}
+
+	public function set(variable:String, data:Dynamic, allowOverride:Null<Bool> = true) {
 		if(lua == null) {
 			return;
 		}
@@ -1663,7 +1668,7 @@ class FunkinLua implements IScriptHandler
 		Lua.setglobal(lua, variable);
 	}
 
-	public function stop() {
+	public function destroy() {
 		closed = true;
 
 		if(lua == null) {

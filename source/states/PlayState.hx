@@ -3197,7 +3197,7 @@ class PlayState extends MusicBeatState
 		for (lua in luaArray)
 		{
 			lua.call('onDestroy', []);
-			lua.stop();
+			lua.destroy();
 		}
 		luaArray = null;
 		FunkinLua.customFunctions.clear();

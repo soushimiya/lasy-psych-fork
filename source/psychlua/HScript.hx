@@ -16,6 +16,7 @@ import crowplexus.hscript.Expr.Error as IrisError;
 import crowplexus.hscript.Printer;
 
 import haxe.ValueException;
+import backend.IScriptHandler;
 
 typedef HScriptInfos = {
 	> haxe.PosInfos,
@@ -26,8 +27,10 @@ typedef HScriptInfos = {
 	#end
 }
 
-class HScript extends Iris
+class HScript extends Iris implements IScriptHandler
 {
+	public var scriptType:ScriptType = HSCRIPT;
+
 	public var filePath:String;
 	public var modFolder:String;
 	public var returnValue:Dynamic;
@@ -482,6 +485,11 @@ class HScript extends Iris
 		}
 
 		return varsToBring = values;
+	}
+
+	override public function set(name:String, value:Dynamic, ?allowOverride:Bool = true)
+	{
+		super.set(name, value, true);
 	}
 }
 
