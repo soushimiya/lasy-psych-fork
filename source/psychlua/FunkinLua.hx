@@ -70,10 +70,9 @@ class FunkinLua implements IScriptHandler
 		//trace("LuaJIT version: " + Lua.versionJIT());
 
 		//LuaL.dostring(lua, CLENSE);
+		var game:PlayState = PlayState.instance;
 
 		this.scriptName = scriptName.trim();
-		var game:PlayState = PlayState.instance;
-		if(game != null) game.luaArray.push(this);
 
 		var myFolder:Array<String> = this.scriptName.split('/');
 		#if MODS_ALLOWED
@@ -216,7 +215,7 @@ class FunkinLua implements IScriptHandler
 		//
 		Lua_helper.add_callback(lua, "getRunningScripts", function() {
 			var runningScripts:Array<String> = [];
-			for (script in game.luaArray)
+			for (script in game.scriptArray)
 				runningScripts.push(script.scriptName);
 
 			return runningScripts;
@@ -261,7 +260,7 @@ class FunkinLua implements IScriptHandler
 
 			var luaPath:String = findScript(luaFile);
 			if(luaPath != null)
-				for (luaInstance in game.luaArray)
+				for (luaInstance in game.scriptArray)
 					if(luaInstance.scriptName == luaPath)
 						return luaInstance.call(funcName, args);
 
@@ -271,8 +270,8 @@ class FunkinLua implements IScriptHandler
 			var luaPath:String = findScript(scriptFile);
 			if(luaPath != null)
 			{
-				for (luaInstance in game.luaArray)
-					if(luaInstance.scriptName == luaPath)
+				for (luaInstance in game.scriptArray)
+					if(luaInstance.scriptName == luaPath && luaInstance.scriptType == LUA)
 						return true;
 			}
 
@@ -280,8 +279,8 @@ class FunkinLua implements IScriptHandler
 			var hscriptPath:String = findScript(scriptFile, '.hx');
 			if(hscriptPath != null)
 			{
-				for (hscriptInstance in game.hscriptArray)
-					if(hscriptInstance.origin == hscriptPath)
+				for (hscriptInstance in game.scriptArray)
+					if(hscriptInstance.scriptName == hscriptPath)
 						return true;
 			}
 			#end
@@ -301,8 +300,8 @@ class FunkinLua implements IScriptHandler
 			if(luaPath != null)
 			{
 				if(!ignoreAlreadyRunning)
-					for (luaInstance in game.luaArray)
-						if(luaInstance.scriptName == luaPath)
+					for (luaInstance in game.scriptArray)
+						if(luaInstance.scriptName == luaPath && luaInstance.scriptType == LUA)
 						{
 							luaTrace('addLuaScript: The script "' + luaPath + '" is already running!');
 							return;
@@ -319,8 +318,8 @@ class FunkinLua implements IScriptHandler
 			if(scriptPath != null)
 			{
 				if(!ignoreAlreadyRunning)
-					for (script in game.hscriptArray)
-						if(script.origin == scriptPath)
+					for (script in game.scriptArray)
+						if(script.scriptName == scriptPath)
 						{
 							luaTrace('addHScript: The script "' + scriptPath + '" is already running!');
 							return;
@@ -339,9 +338,9 @@ class FunkinLua implements IScriptHandler
 			if(luaPath != null)
 			{
 				var foundAny:Bool = false;
-				for (luaInstance in game.luaArray)
+				for (luaInstance in game.scriptArray)
 				{
-					if(luaInstance.scriptName == luaPath)
+					if(luaInstance.scriptName == luaPath && luaInstance.scriptType == LUA)
 					{
 						trace('Closing lua script $luaPath');
 						luaInstance.destroy();
@@ -360,9 +359,9 @@ class FunkinLua implements IScriptHandler
 			if(scriptPath != null)
 			{
 				var foundAny:Bool = false;
-				for (script in game.hscriptArray)
+				for (script in game.scriptArray)
 				{
-					if(script.origin == scriptPath)
+					if(script.scriptName == scriptPath && script.scriptType == HSCRIPT)
 					{
 						trace('Closing hscript $scriptPath');
 						script.destroy();
@@ -1682,6 +1681,8 @@ class FunkinLua implements IScriptHandler
 			hscript.destroy();
 			hscript = null;
 		}
+		if (PlayState.instance != null)
+			PlayState.instance.scriptArray.remove(this);
 		#end
 	}
 

@@ -341,7 +341,7 @@ class Iris {
 	 * @param fun       The name of the method you wanna call.
 	 * @param args      The arguments that the method needs.
 	 */
-	public function call(fun: String, ?args: Array<Dynamic>): IrisCall {
+	public function call(fun: String, ?args: Array<Dynamic>): Dynamic {
 		if (interp == null) {
 			#if IRIS_DEBUG
 			trace("[Iris:call()]: " + interpErrStr + ", so functions cannot be called.");

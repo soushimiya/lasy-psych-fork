@@ -5,6 +5,7 @@ import backend.StageData;
 import backend.WeekData;
 import backend.Song;
 import backend.Rating;
+import backend.IScriptHandler;
 
 import flixel.FlxBasic;
 import flixel.FlxObject;
@@ -96,10 +97,6 @@ class PlayState extends MusicBeatState
 	public var dadMap:Map<String, Character> = new Map<String, Character>();
 	public var gfMap:Map<String, Character> = new Map<String, Character>();
 
-	#if HSCRIPT_ALLOWED
-	public var hscriptArray:Array<HScript> = [];
-	#end
-
 	public var BF_X:Float = 770;
 	public var BF_Y:Float = 100;
 	public var DAD_X:Float = 100;
@@ -163,6 +160,8 @@ class PlayState extends MusicBeatState
 	public var eventNotes:Array<EventNote> = [];
 
 	public var camFollow:FlxObject;
+	public var camFollowExtra:FlxObject;
+	public var camFollowFinal:FlxObject;
 	private static var prevCamFollow:FlxObject;
 
 	public var strumLineNotes:FlxTypedGroup<StrumNote> = new FlxTypedGroup<StrumNote>();
@@ -250,9 +249,9 @@ class PlayState extends MusicBeatState
 	var boyfriendIdleTime:Float = 0.0;
 	var boyfriendIdled:Bool = false;
 
-	// Lua shit
+	// Scripting shit
 	public static var instance:PlayState;
-	#if LUA_ALLOWED public var luaArray:Array<FunkinLua> = []; #end
+	public var scriptArray:Array<IScriptHandler> = [];
 
 	#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
 	private var luaDebugGroup:FlxTypedGroup<psychlua.DebugLuaText>;
@@ -522,8 +521,9 @@ class PlayState extends MusicBeatState
 
 		noteGroup.add(grpNoteSplashes);
 
-		camFollow = new FlxObject();
-		camFollow.setPosition(camPos.x, camPos.y);
+		camFollow = new FlxObject(camPos.x, camPos.y);
+		camFollowExtra = new FlxObject();
+		camFollowFinal = new FlxObject();
 		camPos.put();
 
 		if (prevCamFollow != null)
@@ -533,7 +533,7 @@ class PlayState extends MusicBeatState
 		}
 		add(camFollow);
 
-		FlxG.camera.follow(camFollow, LOCKON, 0);
+		FlxG.camera.follow(camFollowFinal, LOCKON, 0);
 		FlxG.camera.zoom = defaultCamZoom;
 		FlxG.camera.snapToTarget();
 
@@ -786,7 +786,7 @@ class PlayState extends MusicBeatState
 
 		if(doPush)
 		{
-			for (script in luaArray)
+			for (script in scriptArray)
 			{
 				if(script.scriptName == luaFile)
 				{
@@ -794,7 +794,8 @@ class PlayState extends MusicBeatState
 					break;
 				}
 			}
-			if(doPush) new FunkinLua(luaFile);
+			if(doPush)
+				scriptArray.push(new FunkinLua(luaFile));
 		}
 		#end
 
@@ -1701,6 +1702,10 @@ class PlayState extends MusicBeatState
 			}
 		}
 		else FlxG.camera.followLerp = 0;
+
+		camFollowFinal.setPosition(camFollow.x + camFollowExtra.x, camFollow.x + camFollowExtra.y);
+
+
 		callOnScripts('onUpdate', [elapsed]);
 
 		super.update(elapsed);
@@ -2369,16 +2374,6 @@ class PlayState extends MusicBeatState
 			camFollow.setPosition(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
 			camFollow.x -= boyfriend.cameraPosition[0] - boyfriendCameraOffset[0];
 			camFollow.y += boyfriend.cameraPosition[1] + boyfriendCameraOffset[1];
-
-			if (songName == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1)
-			{
-				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut, onComplete:
-					function (twn:FlxTween)
-					{
-						cameraTwn = null;
-					}
-				});
-			}
 		}
 	}
 
@@ -3035,8 +3030,23 @@ class PlayState extends MusicBeatState
 				char.lastHitNotePosition = note.strumTime;
 				char.lastHitNoteDirection = note.noteData;
 
-				if(canPlay) char.playAnim(animToPlay, true);
-				char.holdTimer = 0;
+				if(canPlay) 
+				{
+					char.playAnim(animToPlay, true);
+					char.holdTimer = 0;
+				}
+
+				switch(note.noteData)
+				{
+					case 0:
+						camFollowExtra.setPosition(-10, 0);
+					case 1:
+						camFollowExtra.setPosition(0, 10);
+					case 2:
+						camFollowExtra.setPosition(10, 0);
+					case 3:
+						camFollowExtra.setPosition(0, -10);
+				}
 			}
 		}
 
@@ -3106,8 +3116,23 @@ class PlayState extends MusicBeatState
 					char.lastHitNotePosition = note.strumTime;
 					char.lastHitNoteDirection = note.noteData;
 	
-					if(canPlay) char.playAnim(animToPlay, true);
-					char.holdTimer = 0;
+					if(canPlay)
+					{
+						char.playAnim(animToPlay, true);
+						char.holdTimer = 0;
+					}
+
+					switch(note.noteData)
+					{
+						case 0:
+							camFollowExtra.setPosition(-10, 0);
+						case 1:
+							camFollowExtra.setPosition(0, 10);
+						case 2:
+							camFollowExtra.setPosition(10, 0);
+						case 3:
+							camFollowExtra.setPosition(0, -10);
+					}
 
 					if(note.noteType == 'Hey!')
 					{
@@ -3194,25 +3219,15 @@ class PlayState extends MusicBeatState
 		}
 
 		#if LUA_ALLOWED
-		for (lua in luaArray)
-		{
-			lua.call('onDestroy', []);
-			lua.destroy();
-		}
-		luaArray = null;
+		callOnScripts("onDestroy");
 		FunkinLua.customFunctions.clear();
 		#end
 
-		#if HSCRIPT_ALLOWED
-		for (script in hscriptArray)
-			if(script != null)
-			{
-				if(script.exists('onDestroy')) script.call('onDestroy');
-				script.destroy();
-			}
-
-		hscriptArray = null;
-		#end
+		for (script in scriptArray)
+		{
+			script.destroy();
+		}
+		scriptArray = null;
 		stagesFunc(function(stage:BaseStage) stage.destroy());
 
 		#if VIDEOS_ALLOWED
@@ -3341,10 +3356,10 @@ class PlayState extends MusicBeatState
 		if(OpenFlAssets.exists(luaToLoad))
 		#end
 		{
-			for (script in luaArray)
+			for (script in scriptArray)
 				if(script.scriptName == luaToLoad) return false;
 
-			new FunkinLua(luaToLoad);
+			scriptArray.push(new FunkinLua(luaToLoad));
 			return true;
 		}
 		return false;
@@ -3380,7 +3395,7 @@ class PlayState extends MusicBeatState
 			newScript = new HScript(null, file);
 			if (newScript.exists('onCreate')) newScript.call('onCreate');
 			trace('initialized hscript interp successfully: $file');
-			hscriptArray.push(newScript);
+			scriptArray.push(newScript);
 		}
 		catch(e:IrisError)
 		{
@@ -3393,33 +3408,14 @@ class PlayState extends MusicBeatState
 	}
 	#end
 
-	public function callOnScripts(funcToCall:String, args:Array<Dynamic> = null, ignoreStops = false, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
+	public function callOnScripts(funcToCall:String, ?args:Array<Dynamic>, ignoreStops = false, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
 		var returnVal:Dynamic = LuaUtils.Function_Continue;
 		if(args == null) args = [];
 		if(exclusions == null) exclusions = [];
 		if(excludeValues == null) excludeValues = [LuaUtils.Function_Continue];
 
-		var result:Dynamic = callOnLuas(funcToCall, args, ignoreStops, exclusions, excludeValues);
-		if(result == null || excludeValues.contains(result)) result = callOnHScript(funcToCall, args, ignoreStops, exclusions, excludeValues);
-		return result;
-	}
-
-	public function callOnLuas(funcToCall:String, args:Array<Dynamic> = null, ignoreStops = false, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
-		var returnVal:Dynamic = LuaUtils.Function_Continue;
-		#if LUA_ALLOWED
-		if(args == null) args = [];
-		if(exclusions == null) exclusions = [];
-		if(excludeValues == null) excludeValues = [LuaUtils.Function_Continue];
-
-		var arr:Array<FunkinLua> = [];
-		for (script in luaArray)
+		for (script in scriptArray)
 		{
-			if(script.closed)
-			{
-				arr.push(script);
-				continue;
-			}
-
 			if(exclusions.contains(script.scriptName))
 				continue;
 
@@ -3429,16 +3425,29 @@ class PlayState extends MusicBeatState
 				returnVal = myValue;
 				break;
 			}
-
-			if(myValue != null && !excludeValues.contains(myValue))
-				returnVal = myValue;
-
-			if(script.closed) arr.push(script);
 		}
 
-		if(arr.length > 0)
-			for (script in arr)
-				luaArray.remove(script);
+		return returnVal;
+	}
+
+	public function callOnLuas(funcToCall:String, ?args:Array<Dynamic>, ignoreStops = false, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
+		var returnVal:Dynamic = LuaUtils.Function_Continue;
+		#if LUA_ALLOWED
+		if(args == null) args = [];
+		if(exclusions == null) exclusions = [];
+		if(excludeValues == null) excludeValues = [LuaUtils.Function_Continue];
+
+		for (script in scriptArray)
+		{
+			if(exclusions.contains(script.scriptName))
+				continue;
+			if (script.scriptType != LUA)
+				continue;
+
+			var myValue:Dynamic = script.call(funcToCall, args);
+			if((myValue == LuaUtils.Function_StopLua || myValue == LuaUtils.Function_StopAll) && !excludeValues.contains(myValue) && !ignoreStops)
+				returnVal = myValue;
+		}
 		#end
 		return returnVal;
 	}
@@ -3451,29 +3460,15 @@ class PlayState extends MusicBeatState
 		if(excludeValues == null) excludeValues = new Array();
 		excludeValues.push(LuaUtils.Function_Continue);
 
-		var len:Int = hscriptArray.length;
-		if (len < 1)
-			return returnVal;
-
-		for(script in hscriptArray)
+		for(script in scriptArray)
 		{
-			@:privateAccess
-			if(script == null || !script.exists(funcToCall) || exclusions.contains(script.origin))
+			if (script.scriptType != HSCRIPT)
 				continue;
-
 			var callValue = script.call(funcToCall, args);
 			if(callValue != null)
 			{
-				var myValue:Dynamic = callValue.returnValue;
-
-				if((myValue == LuaUtils.Function_StopHScript || myValue == LuaUtils.Function_StopAll) && !excludeValues.contains(myValue) && !ignoreStops)
-				{
-					returnVal = myValue;
-					break;
-				}
-
-				if(myValue != null && !excludeValues.contains(myValue))
-					returnVal = myValue;
+				if((callValue == LuaUtils.Function_StopHScript || callValue == LuaUtils.Function_StopAll) && !excludeValues.contains(callValue) && !ignoreStops)
+					returnVal = callValue;
 			}
 		}
 		#end
@@ -3483,32 +3478,29 @@ class PlayState extends MusicBeatState
 
 	public function setOnScripts(variable:String, arg:Dynamic, exclusions:Array<String> = null) {
 		if(exclusions == null) exclusions = [];
-		setOnLuas(variable, arg, exclusions);
-		setOnHScript(variable, arg, exclusions);
+		for (script in scriptArray)
+		{
+			if (!exclusions.contains(script.scriptName))
+				script.set(variable, arg);
+		}
 	}
 
 	public function setOnLuas(variable:String, arg:Dynamic, exclusions:Array<String> = null) {
-		#if LUA_ALLOWED
 		if(exclusions == null) exclusions = [];
-		for (script in luaArray) {
-			if(exclusions.contains(script.scriptName))
-				continue;
-
-			script.set(variable, arg);
+		for (script in scriptArray)
+		{
+			if (!exclusions.contains(script.scriptName) && script.scriptType == LUA)
+				script.set(variable, arg);
 		}
-		#end
 	}
 
 	public function setOnHScript(variable:String, arg:Dynamic, exclusions:Array<String> = null) {
-		#if HSCRIPT_ALLOWED
 		if(exclusions == null) exclusions = [];
-		for (script in hscriptArray) {
-			if(exclusions.contains(script.origin))
-				continue;
-
-			script.set(variable, arg);
+		for (script in scriptArray)
+		{
+			if (!exclusions.contains(script.scriptName) && script.scriptType == HSCRIPT)
+				script.set(variable, arg);
 		}
-		#end
 	}
 
 	function strumPlayAnim(isDad:Bool, id:Int, time:Float) {

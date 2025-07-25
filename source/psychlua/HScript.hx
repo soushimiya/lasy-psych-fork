@@ -84,7 +84,7 @@ class HScript extends Iris implements IScriptHandler
 	}
 	#end
 
-	public var origin:String;
+	public var scriptName:String;
 	override public function new(?parent:Dynamic, ?file:String, ?varsToBring:Any = null, ?manualRun:Bool = false)
 	{
 		if (file == null)
@@ -93,7 +93,7 @@ class HScript extends Iris implements IScriptHandler
 		filePath = file;
 		if (filePath != null && filePath.length > 0)
 		{
-			this.origin = filePath;
+			this.scriptName = filePath;
 			#if MODS_ALLOWED
 			var myFolder:Array<String> = filePath.split('/');
 			if(myFolder[0] + '/' == Paths.mods() && (Mods.currentModDirectory == myFolder[1] || Mods.getGlobalMods().contains(myFolder[1]))) //is inside mods folder
@@ -123,7 +123,7 @@ class HScript extends Iris implements IScriptHandler
 		parentLua = parent;
 		if (parent != null)
 		{
-			this.origin = parent.scriptName;
+			this.scriptName = parent.scriptName;
 			this.modFolder = parent.modFolder;
 		}
 		#end
@@ -303,9 +303,9 @@ class HScript extends Iris implements IScriptHandler
 		#if LUA_ALLOWED
 		set('createGlobalCallback', function(name:String, func:Dynamic)
 		{
-			for (script in PlayState.instance.luaArray)
-				if(script != null && script.lua != null && !script.closed)
-					Lua_helper.add_callback(script.lua, name, func);
+			for (script in PlayState.instance.scriptArray)
+				if(script.scriptType == LUA)
+					Lua_helper.add_callback(cast(script, FunkinLua).lua, name, func);
 
 			FunkinLua.customFunctions.set(name, func);
 		});
@@ -422,8 +422,11 @@ class HScript extends Iris implements IScriptHandler
 	}
 	#end
 
-	override function call(funcToRun:String, ?args:Array<Dynamic>):IrisCall {
+	// edited call function directly on iris so we can do things lol
+	override function call(funcToRun:String, ?args:Array<Dynamic>):Dynamic {
 		if (funcToRun == null || interp == null) return null;
+
+		var ret:Dynamic = null;
 
 		if (!exists(funcToRun)) {
 			Iris.error('No function named: $funcToRun', this.interp.posInfos());
@@ -432,8 +435,7 @@ class HScript extends Iris implements IScriptHandler
 
 		try {
 			var func:Dynamic = interp.variables.get(funcToRun); // function signature
-			final ret = Reflect.callMethod(null, func, args ?? []);
-			return {funName: funcToRun, signature: func, returnValue: ret};
+			ret = Reflect.callMethod(null, func, args ?? []);
 		}
 		catch(e:IrisError) {
 			var pos:HScriptInfos = cast this.interp.posInfos();
@@ -459,13 +461,18 @@ class HScript extends Iris implements IScriptHandler
 			#end
 			Iris.error('$e', pos);
 		}
-		return null;
+
+		if((ret == LuaUtils.Function_StopHScript || ret == LuaUtils.Function_StopAll))
+			return ret;
+		return LuaUtils.Function_Continue;
 	}
 
 	override public function destroy()
 	{
-		origin = null;
+		scriptName = null;
 		#if LUA_ALLOWED parentLua = null; #end
+		if (PlayState.instance != null)
+			PlayState.instance.scriptArray.remove(this);
 		super.destroy();
 	}
 
